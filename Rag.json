@@ -1,0 +1,1436 @@
+{
+  "name": "RAG",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1D6zsbD669KBrIAySAAxVrVIOsI-LwZQN",
+          "mode": "list",
+          "cachedResultName": "Traditional RAG",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1D6zsbD669KBrIAySAAxVrVIOsI-LwZQN"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -1580
+      ],
+      "id": "915d363d-99ff-4bd2-91b2-0504a083eca2",
+      "name": "Traditional Rag",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "flziRSGIBHhxL1ZU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        -1700
+      ],
+      "id": "e23cdaae-032a-43e3-924d-e930bbdcb7f6",
+      "name": "Extract from PDF"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "traditionalrag",
+          "mode": "list",
+          "cachedResultName": "traditionalrag"
+        },
+        "options": {
+          "pineconeNamespace": "={{$('TR FILE INFO').item.json.namespace}}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        2580,
+        -1600
+      ],
+      "id": "b8c23454-332e-48f4-894f-9863791855ce",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zJziaroK7wCfScde",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonMode": "=expressionData",
+        "jsonData": "={{ $json.data }}",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_url",
+                "value": "={{ $('TR FILE INFO').item.json.file_url }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        -1420
+      ],
+      "id": "4cf97cde-9d6c-473d-8a94-13783acfbc84",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2540,
+        -1380
+      ],
+      "id": "4d39e1c0-c356-4d62-8ad8-5b059e88ccbc",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "sHvgFJuDYtk00WM4",
+          "name": "N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        -1500
+      ],
+      "id": "ff9eaba0-7f02-4a98-9686-813cddba3a2b",
+      "name": "Extract from Text"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        3300,
+        -1420
+      ],
+      "id": "a1eaa249-9149-4dee-8b5b-a0bc0ac999d5",
+      "name": "When chat message received",
+      "webhookId": "4bb02f4f-104a-4a9c-90f1-8fcda075475b"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "o3-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3320,
+        -1200
+      ],
+      "id": "fec33025-1a58-46ec-8f33-9322596f80ab",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "sHvgFJuDYtk00WM4",
+          "name": "N8N"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3420,
+        -1200
+      ],
+      "id": "9ea37e96-7c9d-4157-94f9-6f11569e1254",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        3620,
+        -1080
+      ],
+      "id": "13b9adff-f293-4e08-bcb1-b2c35829a6b7",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "sHvgFJuDYtk00WM4",
+          "name": "N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "companyinformation",
+        "toolDescription": "This is Pinecone's Vector Store tool",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "contextualrag",
+          "mode": "list",
+          "cachedResultName": "contextualrag"
+        },
+        "topK": 10,
+        "options": {
+          "pineconeNamespace": "=Financial"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        3580,
+        -1220
+      ],
+      "id": "6f06576a-50e8-4b66-b210-5b1a703faad4",
+      "name": "Pinecone VS",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zJziaroK7wCfScde",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"data\": {{JSON.stringify($json.text)}}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1880,
+        -880
+      ],
+      "id": "15af92ee-057d-4e15-a626-40f51d99b588",
+      "name": "PDF TO DATA"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"data\": {{ JSON.stringify($json.data) }}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2020,
+        -820
+      ],
+      "id": "643caec1-2329-4dbc-9709-9fef3e9c05e6",
+      "name": "Document Data"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1NCA5mw1B_S7qVfShntWM9sjJ4vzOGsj4",
+          "mode": "list",
+          "cachedResultName": "Contextual RAG",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1NCA5mw1B_S7qVfShntWM9sjJ4vzOGsj4"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        780,
+        -880
+      ],
+      "id": "2bc7ee1f-8997-44b5-8115-df94801b515b",
+      "name": "Contextual Rag",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "flziRSGIBHhxL1ZU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "chunks",
+        "options": {
+          "destinationFieldName": "chunk"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2280,
+        -820
+      ],
+      "id": "09573fcb-4de2-485c-a451-e1ef2d3db584",
+      "name": "Split Chunks"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<document> \n{{ $('Document Data').item.json.data }}\n</document> \n\nHere is the chunk we want to situate within the overall document:\n\n<chunk> \n{{$json.chunk}} \n</chunk> \n\nPlease:\n- Provide a short and succinct **context** to situate this chunk within the document for improved search retrieval.\n- Return the **original chunk** exactly as provided unless a correction is necessary.\n- If the chunk contains an **incomplete number, percentage, or entity**, correct it using the full document.\n- If part of a **sentence is cut off**, reconstruct the missing words only if necessary for clarity.\n- If the chunk is part of a table, include the complete table entry to maintain data integrity\n- Do not add any additional explanations or formatting beyond the required output.\n\nFill in the following format:\n[succinct context] : [original chunk or corrected version if necessary]\n\nYour response should contain only the text that replaces these placeholders, without including the placeholder labels themselves."
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        2500,
+        -820
+      ],
+      "id": "f40ab445-0435-4639-bfbf-ae07fd2e9224",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        -640
+      ],
+      "id": "9b1b1d4e-88f3-4afb-9d9e-2394371b1675",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Wmas7f2LBKkthj1j",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "aggregation": "concatenate",
+              "field": "text",
+              "separateBy": "other",
+              "customSeparator": " ###SPLIT### "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1.1,
+      "position": [
+        2780,
+        -820
+      ],
+      "id": "5a2f764f-3683-4c90-a951-490c703fa8f1",
+      "name": "Summarize"
+    },
+    {
+      "parameters": {
+        "separator": " ###SPLIT### ",
+        "chunkSize": 1200
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        2840,
+        -280
+      ],
+      "id": "7fe31229-8332-4a7b-9c36-1ba5a4914f4f",
+      "name": "Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "o3-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        960,
+        -1420
+      ],
+      "id": "34a36ee6-7693-43b4-9248-d50c18a20b12",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "sHvgFJuDYtk00WM4",
+          "name": "N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "o3-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1080,
+        -660
+      ],
+      "id": "3b5d3731-ed7e-49a4-b4e7-51697233e782",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "sHvgFJuDYtk00WM4",
+          "name": "N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10646eae-ae46-4327-a4dc-9987c2d76173",
+              "name": "file_id",
+              "value": "={{ $('Traditional Rag').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "f4536df5-d0b1-4392-bf17-b8137fb31a44",
+              "name": "file_type",
+              "value": "={{ $('Traditional Rag').item.json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "9bde4d7f-e4f3-4ebd-9338-dce1350f9eab",
+              "name": "file_url",
+              "value": "={{ $('Traditional Rag').item.json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "77d782de-169d-4a46-8a8e-a3831c04d90f",
+              "name": "file_title",
+              "value": "={{ $('Traditional Rag').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "d6cf9a9b-e79b-4ea6-912a-70e285e57429",
+              "name": "namespace",
+              "value": "={{ $json.output.namespace }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d527f54b-bd9b-4336-bc09-67d38a4fe942",
+      "name": "TR FILE INFO",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1280,
+        -1580
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "10646eae-ae46-4327-a4dc-9987c2d76173",
+              "name": "file_id",
+              "value": "={{ $('Contextual Rag').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "f4536df5-d0b1-4392-bf17-b8137fb31a44",
+              "name": "file_type",
+              "value": "={{ $('Contextual Rag').item.json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "9bde4d7f-e4f3-4ebd-9338-dce1350f9eab",
+              "name": "file_url",
+              "value": "={{ $('Contextual Rag').item.json.webViewLink }}",
+              "type": "string"
+            },
+            {
+              "id": "77d782de-169d-4a46-8a8e-a3831c04d90f",
+              "name": "file_title",
+              "value": "={{ $('Contextual Rag').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "8c444ba2-e384-45a3-9492-3c9d21b82cd5",
+              "name": "namespace",
+              "value": "={{ $json.output.namespace }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a6f6d855-017f-47c7-a9fa-bb9c8dd0cf7a",
+      "name": "CR FILE INFO",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1340,
+        -820
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1460,
+        -1580
+      ],
+      "id": "27f82dd4-b322-4d90-b7a8-51a44a901d79",
+      "name": "TR GOOGLE DRIVE",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "flziRSGIBHhxL1ZU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1460,
+        -820
+      ],
+      "id": "a964a087-0af9-4111-86e0-750427398ecb",
+      "name": "CR GOOGLE DRIVE",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "flziRSGIBHhxL1ZU",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('TR FILE INFO').item.json.file_type }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8d105126-f9ee-4b83-9afb-8f410c455124"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "b69f5605-0179-4b02-9a32-e34bb085f82d",
+                    "leftValue": "={{ $('TR FILE INFO').item.json.file_type }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "353aa48b-597d-49dd-b357-6c92b1b72a11",
+      "name": "TR SWITCH",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1640,
+        -1580
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('CR FILE INFO').item.json.file_type }}",
+                    "rightValue": "application/pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8d105126-f9ee-4b83-9afb-8f410c455124"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "b69f5605-0179-4b02-9a32-e34bb085f82d",
+                    "leftValue": "={{ $('CR FILE INFO').item.json.file_type }}",
+                    "rightValue": "text/plain",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "677f5bdc-ef10-4627-9f27-8d212be8a90c",
+      "name": "CR SWITCH",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        1580,
+        -820
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1740,
+        -880
+      ],
+      "id": "796eeb86-f339-46ae-a268-dce3158affca",
+      "name": "CR Extract from PDF"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        -720
+      ],
+      "id": "31297ae0-d29c-4f93-9a3f-0d3f45eb2843",
+      "name": "CR Extract from Text"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "contextualrag",
+          "mode": "list",
+          "cachedResultName": "contextualrag"
+        },
+        "options": {
+          "pineconeNamespace": "={{ $('CR FILE INFO').item.json.namespace }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        2840,
+        -680
+      ],
+      "id": "d6e44ea5-b95c-47e7-9d5c-b0ff51368c0e",
+      "name": "CR Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "zJziaroK7wCfScde",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "=file_url",
+                "value": "={{ $('CR FILE INFO').item.json.file_url }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        2840,
+        -440
+      ],
+      "id": "709b5f38-d008-4633-9996-e2362d76ce35",
+      "name": "CR Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2740,
+        -440
+      ],
+      "id": "5f7be5f3-a32e-4751-ab38-55c4c4985929",
+      "name": "CR EMBEDDING",
+      "credentials": {
+        "openAiApi": {
+          "id": "sHvgFJuDYtk00WM4",
+          "name": "N8N"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.name }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "namespace",
+              "description": "The category this document belongs to - 'Financial' Or 'FAQ'"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "=You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value.\n\nDetermine the document category based on its title, it could either be 'Financial' Or 'FAQ'"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        -820
+      ],
+      "id": "d89024a1-8166-4db6-a99d-ad15ea3132bb",
+      "name": "CR Namespace Classifier"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.name }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "namespace",
+              "description": "The category this document belongs to - 'Financial' Or 'FAQ'"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "=You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value.\n\nDetermine the document category based on its title, it could either be 'Financial' Or 'FAQ'"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -1580
+      ],
+      "id": "8d2900ab-6ded-467c-aec6-57686fc59731",
+      "name": "TR Namespace Classifier"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"data\": {{JSON.stringify($json.text)}}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2040,
+        -1700
+      ],
+      "id": "c654e375-02a4-4ba4-b17a-4eb00d681e2a",
+      "name": "TR PDF TO DATA"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"data\": {{ JSON.stringify($json.data) }}\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2320,
+        -1600
+      ],
+      "id": "477c790c-040e-4c0f-8c6d-ed95b3d00a3f",
+      "name": "TR Document Data"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a RAG agent, who has access to a Pinecone's Vector Database. Your job is to fetch relevant information from the knowledge base that addresses the user query. \n\nThere are two kinds of namespaces, and they are the following: \n'FAQ' - Query this Vector Namepsace when a user query indicates frequently asked questions.\n'Financial' - This is for financial related queries \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        3460,
+        -1420
+      ],
+      "id": "4595201c-efcf-4941-82dd-63868a0bc14b",
+      "name": "RAG Agent"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const chunkSize = 1000;\nconst chunkOverlap = 200;\nconst text = $input.item.json.data.replace(/\\n/, '');\n\nconst chunks = [];\nlet remainingText = text;\n\nwhile (remainingText.length > 0) {\n    let splitPoint;\n\n    // Try splitting at paragraph level first\n    splitPoint = remainingText.lastIndexOf(\"\\n\\n\", chunkSize);\n    \n    // If no paragraph split, try splitting at sentence level\n    if (splitPoint === -1) {\n        splitPoint = remainingText.lastIndexOf(\". \", chunkSize);\n    }\n\n    // If no sentence split, try splitting at word level\n    if (splitPoint === -1) {\n        splitPoint = remainingText.lastIndexOf(\" \", chunkSize);\n    }\n\n    // If still no split point, force cut at chunkSize\n    if (splitPoint === -1 || splitPoint < chunkSize * 0.5) {  \n        splitPoint = chunkSize; // Hard split if no good split point\n    }\n\n    // Extract chunk and adjust remaining text with overlap\n    let chunk = remainingText.substring(0, splitPoint).trim();\n    chunks.push(chunk);\n\n    // Move the pointer forward while keeping the overlap\n    remainingText = remainingText.substring(Math.max(0, splitPoint - chunkOverlap)).trim();\n\n    // Break if remaining text is too small to form another chunk\n    if (remainingText.length < chunkSize * 0.2) {\n        chunks.push(remainingText);\n        break;\n    }\n}\n\nreturn { chunks };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        -820
+      ],
+      "id": "13b4d589-ecc2-4b62-abdb-e88c7ae9858e",
+      "name": "Recursive Splitter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        920,
+        -880
+      ],
+      "id": "8105f042-449e-4581-95f0-6103b0730fd1",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "# TRADITIONAL RAG\n![Contextual RAG Diagram](https://i.imgur.com/cY5futu.png)\n### Steps 鈥� Basic Embedding Flow\n1. Break document into chunks.  \n2. Convert chunks into vector embeddings.  \n3. Insert the vector embeddings into a vector database.  ",
+        "height": 500,
+        "width": 860,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        -1700
+      ],
+      "id": "5b7eaff8-36e7-4fd0-80c5-add81b3e9dd8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# CONTEXTUAL RAG\n![Contextual RAG Diagram](https://i.imgur.com/QnR5Jw0.png)\n### Steps 鈥� Contextualized Embedding Flow\n1. Break document into chunks.  \n2. Pass each chunk along with the whole document to an LLM to contextualize and fix possible data corruption.  \n3. Convert contextualized chunks into vector embeddings.  \n4. Insert the vector embeddings into a vector database.  ",
+        "height": 420,
+        "width": 860,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        -940
+      ],
+      "id": "1c3f8a8f-3947-44f9-a716-b5c4801d3ceb",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        2680,
+        -1240
+      ],
+      "id": "ca9a912f-df75-48b2-9457-da822bf7b563",
+      "name": "Recursive Character Text Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Traditional Rag": {
+      "main": [
+        [
+          {
+            "node": "TR Namespace Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from PDF": {
+      "main": [
+        [
+          {
+            "node": "TR PDF TO DATA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        []
+      ]
+    },
+    "Extract from Text": {
+      "main": [
+        [
+          {
+            "node": "TR Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone VS",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone VS": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDF TO DATA": {
+      "main": [
+        [
+          {
+            "node": "Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Document Data": {
+      "main": [
+        [
+          {
+            "node": "Recursive Splitter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contextual Rag": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Chunks": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize": {
+      "main": [
+        [
+          {
+            "node": "CR Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "CR Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "TR Namespace Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "CR Namespace Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TR FILE INFO": {
+      "main": [
+        [
+          {
+            "node": "TR GOOGLE DRIVE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR FILE INFO": {
+      "main": [
+        [
+          {
+            "node": "CR GOOGLE DRIVE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TR GOOGLE DRIVE": {
+      "main": [
+        [
+          {
+            "node": "TR SWITCH",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR GOOGLE DRIVE": {
+      "main": [
+        [
+          {
+            "node": "CR SWITCH",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TR SWITCH": {
+      "main": [
+        [
+          {
+            "node": "Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR SWITCH": {
+      "main": [
+        [
+          {
+            "node": "CR Extract from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "CR Extract from Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR Extract from PDF": {
+      "main": [
+        [
+          {
+            "node": "PDF TO DATA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR Extract from Text": {
+      "main": [
+        [
+          {
+            "node": "Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "CR Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR EMBEDDING": {
+      "ai_embedding": [
+        [
+          {
+            "node": "CR Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR Namespace Classifier": {
+      "main": [
+        [
+          {
+            "node": "CR FILE INFO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TR Namespace Classifier": {
+      "main": [
+        [
+          {
+            "node": "TR FILE INFO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TR PDF TO DATA": {
+      "main": [
+        [
+          {
+            "node": "TR Document Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TR Document Data": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Splitter": {
+      "main": [
+        [
+          {
+            "node": "Split Chunks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "CR Namespace Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CR Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "793d4ab3-7d02-4984-9dcd-b1d59b6603d6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f3130526459e1309ac4588328f0c877843a975ce87cb56510970ea4653bdfb74"
+  },
+  "id": "ri4cMaE0w49oZkvO",
+  "tags": []
+}
